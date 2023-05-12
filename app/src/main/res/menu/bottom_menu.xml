@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<item
+    android:id="@+id/give_ride"
+    android:icon="@android:drawable/ic_input_add"
+    android:title="Create Ride"></item>
+    <item
+        android:id="@+id/ride"
+        android:icon="@drawable/baseline_search_24"
+        android:title="Get Ride"></item>
+    <item
+        android:id="@+id/bottom_account"
+        android:title="Account"
+        android:icon="@drawable/baseline_account_circle_24"
+        ></item>
+
+</menu>
