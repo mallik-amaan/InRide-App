@@ -14,4 +14,6 @@
         <item name="android:statusBarColor">#000000</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="Theme.RideSharingAppnight" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>

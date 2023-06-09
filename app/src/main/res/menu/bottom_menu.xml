@@ -5,10 +5,6 @@
     android:icon="@android:drawable/ic_input_add"
     android:title="Create Ride"></item>
     <item
-        android:id="@+id/ride"
-        android:icon="@drawable/baseline_search_24"
-        android:title="Get Ride"></item>
-    <item
         android:id="@+id/bottom_account"
         android:title="Account"
         android:icon="@drawable/baseline_account_circle_24"

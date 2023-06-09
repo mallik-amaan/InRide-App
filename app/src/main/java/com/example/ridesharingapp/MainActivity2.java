@@ -7,11 +7,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.animation.Animation;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -29,7 +31,7 @@ EditText name;
 EditText email;
 EditText password,gender,phone;
 FirebaseAuth mAuth=FirebaseAuth.getInstance();
-ProgressBar progressBar;
+LottieAnimationView animationView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,8 +44,7 @@ ProgressBar progressBar;
         login=findViewById(R.id.logintext);
         gender=findViewById(R.id.gender);
         phone=findViewById(R.id.phno);
-        progressBar=findViewById(R.id.progressbar);
-        progressBar.setVisibility(View.GONE);
+        animationView=findViewById(R.id.searching);
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -55,19 +56,26 @@ ProgressBar progressBar;
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progressBar.setVisibility(v.VISIBLE);
-                String username=name.getText().toString();
-                String Email=email.getText().toString();
-                String pass=password.getText().toString();
-                String gender1=gender.getText().toString();
-                String phoneno=phone.getText().toString();
-                if(TextUtils.isEmpty(Email))
-                    Toast.makeText(MainActivity2.this," ENTER EMAIL ADDRESS",Toast.LENGTH_SHORT).show();
-                else if(TextUtils.isEmpty(pass))
-                    Toast.makeText(MainActivity2.this,"ENTER PASSWORD",Toast.LENGTH_SHORT).show();
-                else if(TextUtils.isEmpty(username))
-                    Toast.makeText(MainActivity2.this,"ENTER PASSWORD",Toast.LENGTH_SHORT).show();
-                else {
+                animationView.setVisibility(View.VISIBLE);
+                animationView.playAnimation();
+                String username = name.getText().toString();
+                String Email = email.getText().toString();
+                String pass = password.getText().toString();
+                String gender1 = gender.getText().toString();
+                String phoneno = phone.getText().toString();
+                if (TextUtils.isEmpty(Email))
+                {       Toast.makeText(MainActivity2.this, " ENTER EMAIL ADDRESS", Toast.LENGTH_SHORT).show();
+                animationView.cancelAnimation();
+                animationView.setVisibility(View.INVISIBLE);
+            }else if (TextUtils.isEmpty(pass))
+                {       Toast.makeText(MainActivity2.this, "ENTER PASSWORD", Toast.LENGTH_SHORT).show();
+                animationView.cancelAnimation();
+                animationView.setVisibility(View.INVISIBLE);
+            }else if (TextUtils.isEmpty(username))
+                {       animationView.cancelAnimation();
+                animationView.setVisibility(View.INVISIBLE);
+                Toast.makeText(MainActivity2.this, "ENTER PASSWORD", Toast.LENGTH_SHORT).show();
+            }else {
                     mAuth.createUserWithEmailAndPassword(Email, pass)
                             .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                                 @Override
@@ -75,6 +83,11 @@ ProgressBar progressBar;
                                     if (task.isSuccessful()) {
                                         Toast.makeText(MainActivity2.this, "Registration Successful", Toast.LENGTH_SHORT).show();
                                         uploadData(username,phoneno,gender1,Email);
+                                        animationView.cancelAnimation();
+                                        animationView.setVisibility(View.INVISIBLE);
+                                        Intent intent=new Intent(MainActivity2.this,MapsActivity.class);
+                                        startActivity(intent);
+                                        finish();
                                     } else {
                                         // If sign in fails, display a message to the user.
 

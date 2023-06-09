@@ -23,6 +23,7 @@ public class AccountSettings extends AppCompatActivity {
     String name;
     TextView namefield, logout, changepassword,phonenumber;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +31,15 @@ public class AccountSettings extends AppCompatActivity {
         namefield = findViewById(R.id.name);
         getusername();
         logout = findViewById(R.id.button2);
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                Intent intent=new Intent(AccountSettings.this,MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
         changepassword = findViewById(R.id.changepassword);
         phonenumber=findViewById(R.id.phoneno);
         changepassword.setOnClickListener(new View.OnClickListener() {
@@ -46,13 +56,17 @@ public class AccountSettings extends AppCompatActivity {
                 case R.id.bottom_account:
                     return true;
                 case R.id.give_ride:
+                    try{
                     startActivity(new Intent(this, MapsActivity.class));
                     overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                     return true;
-                case R.id.ride:
-                    startActivity(new Intent(getApplicationContext(), MainActivity3.class));
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                    return true;
+            }
+                    catch(Exception e)
+                    {
+                        startActivity(new Intent(this, MapsActivity.class));
+                        overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                        return true;
+                    }
             }
             return false;
         });
@@ -60,6 +74,7 @@ public class AccountSettings extends AppCompatActivity {
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
                 finish();

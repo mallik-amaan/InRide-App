@@ -1,93 +1,110 @@
 package com.example.ridesharingapp;
-
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import java.util.ArrayList;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ridesharingapp.databinding.ActivityMain3Binding;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
-
 public class MainActivity3 extends AppCompatActivity {
-Button ride;
-  TextView starting;
-  TextView destinate;
-CardView cardView;
+    Button ride;
+    EditText starting;
+    EditText destinate;
+    CardView cardView;
+    ConstraintLayout layout;
+    String start;
+    String ending;
+    PopupWindow popup;
+    private int previousPopupHeight = 0;
+    public MainActivity3(){};
+    public MainActivity3(String Start,String end)
+    {
+        start=Start;
+        ending=end;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main3);
-        cardView=findViewById(R.id.container);
-        ride=findViewById(R.id.getride);
-        starting=findViewById(R.id.start);
-        destinate=findViewById(R.id.destination);
-        BottomNavigationView bottomNavigationView=findViewById(R.id.BottomNavigation);
-        bottomNavigationView.setSelectedItemId(R.id.ride);
-        bottomNavigationView.setOnItemSelectedListener(item ->{
-            switch(item.getItemId())
-            {
-                case R.id.ride:return true;
-                case R.id.bottom_account:
-                    startActivity(new Intent(this,AccountSettings.class));
-                    overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
-                    return true;
-                case R.id.give_ride:
-                    startActivity(new Intent(this,MapsActivity.class));
-                    overridePendingTransition(R.anim.slide_in_right,R.anim.slide_out_left);
-                    return true;
-            }
-            return false;
-        });
+        ActivityMain3Binding binding;
+        View popupview=getLayoutInflater().inflate(R.layout.popup,null);
+        popup=new PopupWindow(popupview,ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,true);
+        popup.showAtLocation(popupview, Gravity.CENTER, 0, 0);
     }
-public void searchride(String searchedridestart,String searchedridedestination)
-{
+    public void searchride(String searchedridestart, String searchedridedestination) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference();
-        usersRef.child("RideDetails").addValueEventListener(new ValueEventListener() {
+        // Assuming you have already set up Firebase and obtained a reference to your database
+        DatabaseReference rideDetailsRef = FirebaseDatabase.getInstance().getReference("RideDetails");
+        rideDetailsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                GenericTypeIndicator<ArrayList<Ridecreation>> t = new GenericTypeIndicator<ArrayList<Ridecreation>>() {};
-                ArrayList<Ridecreation> ride= snapshot.getValue(t);
-                for (Ridecreation rides:ride) {
-                    Log.d(null,  rides.toString());
-                }
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                boolean rideFound = false;  // Variable to track if a ride has been found
 
-                if (ride == null);
-                  //  Toast.makeText(MainActivity3.this, "Fail Retrieving Ride Details", Toast.LENGTH_SHORT).show();
+                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                    String rideId = childSnapshot.getKey();
+                    String start = childSnapshot.child("start_position").getValue(String.class);
+                    String end = childSnapshot.child("destination").getValue(String.class);
+                    String phone_no_of_rider = childSnapshot.child("phone").getValue(String.class);
+                    Log.e(null, "onDataChange: " + start + " " + end);
 
-                else {
-                    for (Ridecreation rideobjects:ride) {
-                        if(searchedridestart==rideobjects.getStart_position() || searchedridedestination==rideobjects.getDestination())
-                        {
-                            Log.d(null, "onDataChange: not found");
-                            starting.setText(rideobjects.getStart_position());
-                            destinate.setText(rideobjects.getDestination());
-                        }
-                        else
-                            Log.d(null, "onDataChange: fuck");
+                    if (start.equals(null) || end.equals(null)) {
+                        Toast.makeText(MainActivity3.this, "Nothing Found", Toast.LENGTH_SHORT).show();
+                    } else if (start.equalsIgnoreCase(searchedridestart) || end.equalsIgnoreCase(searchedridedestination)) {
+                        popupcreator(searchedridestart,searchedridedestination);
+                        Toast.makeText(MainActivity3.this, "Ride Found", Toast.LENGTH_SHORT).show();
+                        rideFound = true;
+                        break;
                     }
                 }
+
+                if (!rideFound) {
+                    Toast.makeText(MainActivity3.this, "No matching ride found", Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(MainActivity3.this, "Database Error", Toast.LENGTH_SHORT).show();
+                Log.d(null, "Error retrieving data: " + databaseError.getMessage());
             }
         });
-
     }
-
+public void popupcreator(String start,String end)
+{
+    TextView starting, ending;
+    View popupview = getLayoutInflater().inflate(R.layout.popup, null);
+    starting = popupview.findViewById(R.id.Startinglocation);
+    ending = popupview.findViewById(R.id.Destination);
+    starting.setText(start);
+    ending.setText(end);
+    popup = new PopupWindow(popupview, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+    popup.showAtLocation(popupview, Gravity.CENTER, 0, 0);
 }
+}
+

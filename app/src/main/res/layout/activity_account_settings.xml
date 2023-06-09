@@ -11,7 +11,7 @@
         android:id="@+id/BottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:background="@drawable/drawable_background"
+        android:background="#CE5959"
         app:elevation="20dp"
         app:itemIconTint="@drawable/item_selector"
         app:labelVisibilityMode="unlabeled"
